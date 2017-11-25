@@ -164,6 +164,23 @@ mybackup.displayName = contact.displayName
 mybackup.statusMessage = contact.statusMessage
 mybackup.pictureStatus = contact.pictureStatus
 
+
+def upload_tempimage(client):
+     '''
+         Upload a picture of a kitten. We don't ship one, so get creative!
+     '''
+     config = {
+         'album': album,
+         'name':  'bot auto upload',
+         'title': 'bot auto upload',
+         'description': 'bot auto upload'
+     }
+
+     print("Uploading image... ")
+     image = client.upload_from_path(image_path, config=config, anon=False)
+     print("Done")
+     print()
+
 def yt(query):
     with requests.session() as s:
          isi = []
@@ -180,7 +197,16 @@ def yt(query):
                     b = a['href'].replace('watch?v=', '')
                     isi += ['youtu.be' + b]
          return isi
-        
+
+def sendMessage(to, text, contentMetadata={}, contentType=0):
+    mes = Message()
+    mes.to, mes.from_ = to, profile.mid
+    mes.text = text
+    mes.contentType, mes.contentMetadata = contentType, contentMetadata
+    if to not in messageReq:
+        messageReq[to] = -1
+    messageReq[to] += 1
+   
 def mention(to, nama):
     aa = ""
     bb = ""
@@ -212,6 +238,39 @@ def cms(string, commands): #/XXX, >XXX, ;XXX, ^XXX, %XXX, $XXX...
                 return True
     return False
         
+def sendMessage(self, messageObject):
+        return self.Talk.client.sendMessage(0,messageObject)
+
+def sendText(self, Tomid, text):
+        msg = Message()
+        msg.to = Tomid
+        msg.text = text
+
+        return self.Talk.client.sendMessage(0, msg)
+def sendImage(self, to_, path):
+        M = Message(to=to_,contentType = 1)
+        M.contentMetadata = None
+        M.contentPreview = None
+        M_id = self._client.sendMessage(M).id
+        files = {
+            'file': open(path, 'rb'),
+        }
+        params = {
+            'name': 'media',
+            'oid': M_id,
+            'size': len(open(path, 'rb').read()),
+            'type': 'image',
+            'ver': '1.0',
+        }
+        data = {
+            'params': json.dumps(params)
+        }
+        r = self._client.post_content('https://os.line.naver.jp/talk/m/upload.nhn', data=data, files=files)
+        if r.status_code != 201:
+            raise Exception('Upload image failure.')
+        #r.content
+        return True
+
 def sendImageWithURL(self, to_, url):
       path = '%s/pythonLine-%i.data' % (tempfile.gettempdir(), randint(0, 9))
       r = requests.get(url, stream=True)
@@ -223,43 +282,62 @@ def sendImageWithURL(self, to_, url):
       try:
          self.sendImage(to_, path)
       except Exception as e:
-	  raise e
-def sendAudio(self, to_, path):
-        M = Message(to=to_, text=None, contentType = 3)
-        M.contentMetadata = None
-        M.contentPreview = None
-        M2 = self.Talk.client.sendMessage(0,M)
-        M_id = M2.id
-        files = {
-            'file': open(path, 'rb'),
-        }
-        params = {
-            'name': 'media',
-            'oid': O_id,
-            'size': len(open(path, 'rb').read()),
-            'type': 'audio',
-            'ver': '2.0',
-        }
-        data = {
-            'params': json.dumps(params)
-        }
-        r = self.post_content('https://obs-sg.line-apps.com/talk/m/upload.nhn', data=data, files=files)
-        if r.status_code != 201:
-            raise Exception('Upload audio failure.')
-        return True   
-def sendAudioWithUrl(self, to_, url):
-        path = '%s/pythonLine-%i.data' % (tempfile.gettempdir(), randint(0, 9))
-        r = requests.get(url, stream=True)
-        if r.status_code == 200:
-            with open(path, 'wb') as f:
-              r.raw.decode_content = True
-              shutil.copyfileobj(r.raw, f)
+         raise e
+ 
+def post_content(self, urls, data=None, files=None):
+        return self._session.post(urls, headers=self._headers, data=data, files=files)
+def sendMessage(to, text, contentMetadata={}, contentType=0):
+    mes = Message()
+    mes.to, mes.from_ = to, profile.mid
+    mes.text = text
+    mes.contentType, mes.contentMetadata = contentType, contentMetadata
+    if to not in messageReq:
+        messageReq[to] = -1
+    messageReq[to] += 1
+
+def sendMessage(to, text, contentMetadata={}, contentType=0):
+    mes = Message()
+    mes.to, mes.from_ = to, profile.mid
+    mes.text = text
+    mes.contentType, mes.contentMetadata = contentType, contentMetadata
+    if to not in messageReq:
+        messageReq[to] = -1
+    messageReq[to] += 1
+def NOTIFIED_READ_MESSAGE(op):
+    print op
+    try:
+        if op.param1 in wait2['readPoint']:
+            Name = cl.getContact(op.param2).displayName
+            if Name in wait2['readMember'][op.param1]:
+                pass
+            else:
+                wait2['readMember'][op.param1] += "\n・" + Name + datetime.now().strftime(' [%d - %H:%M:%S]')
+                wait2['ROM'][op.param1][op.param2] = "・" + Name + " ツ"
         else:
-            raise Exception('Download Audio failure.')
-        try:
-            self.sendAudio(to_, path)
-        except Exception as e:
-          print e
+            pass
+    except:
+        pass
+def RECEIVE_MESSAGE(op):
+    msg = op.message
+    try:
+        if msg.contentType == 0:
+            try:
+                if msg.to in wait2['readPoint']:
+                    if msg.from_ in wait2["ROM"][msg.to]:
+                        del wait2["ROM"][msg.to][msg.from_]
+                else:
+                    pass
+            except:
+                pass
+        else:
+            pass
+          
+    except KeyboardInterrupt:
+				sys.exit(0)
+    except Exception as error:
+        print error
+        print ("\n\nRECEIVE_MESSAGE\n\n")
+        return
 def bot(op):
     try:
         if op.type == 0:
