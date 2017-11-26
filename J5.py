@@ -1209,9 +1209,31 @@ def bot(op):
 					path = "http://dl.profile.line-cdn.net/" + group.pictureStatus
 					cl.sendImageWithURL(msg.to,path)
             
-            elif "Getpp @" in msg.text:            
+            elif "home @" in msg.text:            
                 print "[Command]dp executing"
-                _name = msg.text.replace("Getpp @","")
+                _name = msg.text.replace("home @","")
+                _nametarget = _name.rstrip('  ')
+                gs = cl.getGroup(msg.to)
+                targets = []
+                for g in gs.members:
+                    if _nametarget == g.displayName:
+                        targets.append(g.mid)
+                if targets == []:
+                    cl.sendText(msg.to,"Contact not found")
+                else:
+                    for target in targets:
+                        try:
+                            contact = cl.getContact(target)
+                            cu = cl.channel.getCover(target)
+                            path = str(cu)
+                            cl.sendImageWithURL(msg.to, path)
+                        except:
+                            pass
+                print "[Command]dp executed"			
+#------------------------------------------------------------------
+            elif "Sikat @" in msg.text:            
+                print "[Command]dp executing"
+                _name = msg.text.replace("Sikat @","")
                 _nametarget = _name.rstrip('  ')
                 gs = cl.getGroup(msg.to)
                 targets = []
@@ -1228,28 +1250,7 @@ def bot(op):
                             cl.sendImageWithURL(msg.to, path)
                         except:
                             pass
-                print "[Command]dp executed"
-
-            elif "Getcover @" in msg.text:
-                print "[Command]cover executing"
-                _name = msg.text.replace("Getcover @","")    
-                _nametarget = _name.rstrip('  ')
-                gs = cl.getGroup(msg.to)
-                targets = []
-                for g in gs.members:
-                    if _nametarget == g.displayName:
-                        targets.append(g.mid)
-                if targets == []:
-                    cl.sendText(msg.to,"Contact not found")
-                else:
-                    for target in targets:
-                        try:
-                            contact = cl.getContact(target)
-                            cu = cl.channel.getCover(target)          
-                            path = str(cu)
-                            cl.sendImageWithURL(msg.to, path)
-                        except Exception as e:
-                            raise e
+                print "[Command]dp executed"	
                             
             elif 'Tube: ' in msg.text:
                 try:
@@ -1292,7 +1293,7 @@ def bot(op):
                         hasil += '\nLink Download : ' + song[4]
                         cl.sendText(msg.to, hasil)
                         cl.sendText(msg.to, "Please Wait for audio...")
-                        cl.sendAudioIdk(msg.to, song[4])
+                        cl.sendAudioWithURL(msg.to, song[4])
 		except Exception as njer:
 		        cl.sendText(msg.to, str(njer))
 		
@@ -1334,7 +1335,12 @@ def bot(op):
                     cl.sendText(msg.to, detail + user + user1 + followers + following + post + link + details)
                 except Exception as njer:
 				cl.seendText(msg.to, str(njer))
-		    
+		elif "Google " in msg.text:
+	        ggl = msg.text.replace("Google ", "")
+       	        anu = ggl.rstrip(' ')
+    	        path = "http://google.com/search?q=" + anu
+	    	cl.sendText(msg.to,"Best Result...")
+		cl.sendText(msg.to,path)    
             elif msg.text in ["Gcreator:inv"]:
 	           if msg.from_ in admin:
                     ginfo = cl.getGroup(msg.to)
